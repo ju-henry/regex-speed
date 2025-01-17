@@ -1,0 +1,52 @@
+---
+title: "Regex speed comparison in R"
+format: html
+editor: visual
+---
+
+# Setup
+
+From R version 4.0.0, PCRE2 is used when using regular expression functions with
+`perl = TRUE`. Here we compare the execution speed of a regex search between R
+version 4.0.0 and the preceding version 3.6.3 (which still uses PCRE).
+
+We use the regular expression `\\{(?>[^{}]*|(?R))*\\}` that identifies matching 
+brackets (`'{'` and `'}'`)  and anything in-between. We use it on a string made
+of two elements. The first element is composed of an opening bracket and 99 
+identical characters `'a'`. The second element is composed of 99 identical 
+characters `'a'` and a closing bracket. The first element is repeated 1000 times,
+then the second element is repeated 1000 times. Everything is concatenated in one
+string that has 200'000 characters. The regular expression is supposed to match
+the whole string since the matching brackets are at the beginning and at the end
+of the string.
+
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+```{r echo=FALSE, warning=FALSE}
+a <- readRDS("v3.6.3/results.rds")
+y_05 <- floor(quantile(a$time / 1000, 0.05))
+y_95 <- ceiling(quantile(a$time / 1000, 0.95))
+
+ggplot(a, aes(y = time / 1000)) + 
+  geom_boxplot() + 
+  ylim(y_05, y_95) + 
+  labs(title = "Boxplot of execution speed on R version 3.6.6", 
+       y = "time (microseconds)")
+```
+
+
+```{r echo=FALSE, warning=FALSE}
+b <- readRDS("v4.0.0/results.rds")
+
+y_05 <- floor(quantile(b$time / 1000, 0.05))
+y_95 <- ceiling(quantile(b$time / 1000, 0.95))
+
+ggplot(b, aes(y = time / 1000)) + 
+  geom_boxplot() + 
+  ylim(y_05, y_95) + 
+  labs(title = "Boxplot of execution speed on R version 4.0.0", 
+       y = "time (microseconds)")
+```
+
