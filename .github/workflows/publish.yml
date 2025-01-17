@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-deploy:
-    runs-on: ubuntu-latest
+    runs-on: rocker/r-ver:4.4.2
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
