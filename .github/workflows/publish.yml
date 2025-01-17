@@ -6,10 +6,14 @@ on:
 
 jobs:
   build-deploy:
-    runs-on: rocker/r-ver:4.4.2
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+        
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.2.2'
       
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
