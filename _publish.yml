@@ -1,0 +1,4 @@
+- source: index.qmd
+  quarto-pub:
+    - id: 92b245b5-2b85-4c56-8d20-6bdf8f8fa449
+      url: 'https://ju-henry.quarto.pub/regex-speed'
