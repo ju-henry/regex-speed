@@ -1,2 +1,4 @@
 *.html
 index_files/*
+*.txt
+*.zip

@@ -9,4 +9,10 @@ WORKDIR /usr/src/app
 
 COPY script.R .
 
+RUN apt-get update && apt-get install -y wget
+
+RUN wget http://www.gutenberg.org/files/3200/old/mtent12.zip
+
+RUN unzip mtent12.zip
+
 CMD ["Rscript", "script.R"]
