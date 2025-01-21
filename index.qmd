@@ -2,51 +2,43 @@
 title: "Regex speed comparison in R"
 format: html
 editor: visual
+bibliography: references.bib
 ---
 
 # Setup
 
 From R version 4.0.0, PCRE2 is used when using regular expression functions with
-`perl = TRUE`. Here we compare the execution speed of a regex search between R
+`perl = TRUE`. Here we compare regex search execution times between R
 version 4.0.0 and the preceding version 3.6.3 (which still uses PCRE).
 
-We use the regular expression `\\{(?>[^{}]*|(?R))*\\}` that identifies matching 
-brackets (`'{'` and `'}'`)  and anything in-between. We use it on a string made
-of two elements. The first element is composed of an opening bracket and 99 
-identical characters `'a'`. The second element is composed of 99 identical 
-characters `'a'` and a closing bracket. The first element is repeated 1000 times,
-then the second element is repeated 1000 times. Everything is concatenated in one
-string that has 200'000 characters. The regular expression is supposed to match
-the whole string since the matching brackets are at the beginning and at the end
-of the string.
+We set up a similar experiment to the one of John Maddock [@boost].
+That is, we use a long English text (19MB) from the Gutenberg project (available here: [mtent12.zip](http://www.gutenberg.org/files/3200/old/mtent12.zip)),
+and assess the time needed to find all occurrences of different regex patterns.
+The R package `microbenchmark` [@microbenchmark] executes each call 100 times and we give the median time below.
+
 
 ```{r echo=FALSE}
 library(ggplot2)
+library(knitr)
+library(kableExtra)
 ```
+
 
 ```{r echo=FALSE, warning=FALSE}
 a <- readRDS("v3.6.3/results.rds")
-y_05 <- floor(quantile(a$time / 1000, 0.05))
-y_95 <- ceiling(quantile(a$time / 1000, 0.95))
+res_a <- data.frame(sapply(a, function(df) median(df$time / 1E6)))
+names(res_a) <- "R 3.6.3"
 
-ggplot(a, aes(y = time / 1000)) + 
-  geom_boxplot() + 
-  ylim(y_05, y_95) + 
-  labs(title = "Boxplot of execution speed on R version 3.6.6", 
-       y = "time (microseconds)")
-```
-
-
-```{r echo=FALSE, warning=FALSE}
 b <- readRDS("v4.0.0/results.rds")
+res_b <- data.frame(sapply(b, function(df) median(df$time / 1E6)))
+names(res_b) <- "R 4.0.0"
 
-y_05 <- floor(quantile(b$time / 1000, 0.05))
-y_95 <- ceiling(quantile(b$time / 1000, 0.95))
+df <- apply(cbind(res_a, res_b), 2, signif, 4)
 
-ggplot(b, aes(y = time / 1000)) + 
-  geom_boxplot() + 
-  ylim(y_05, y_95) + 
-  labs(title = "Boxplot of execution speed on R version 4.0.0", 
-       y = "time (microseconds)")
+kable(df, format = "html", row.names = TRUE, 
+      table.attr = "style='width:100%;'")
+
 ```
 
+
+<p style="text-align: center; margin-top: 10px;">Table 1: median execution time in milliseconds (ms), given with 4 significant digits.</p>
