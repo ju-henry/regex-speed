@@ -11,34 +11,48 @@ From R version 4.0.0, PCRE2 is used when using regular expression functions with
 `perl = TRUE`. Here we compare regex search execution times between R
 version 4.0.0 and the preceding version 3.6.3 (which still uses PCRE).
 
-We set up a similar experiment to the one of John Maddock [@boost].
-That is, we use a long English text (19MB) from the Gutenberg project (available here: [mtent12.zip](http://www.gutenberg.org/files/3200/old/mtent12.zip)),
+I set up a similar experiment to the one of John Maddock [@boost].
+That is, I use a long English text (19MB) from the Gutenberg project (available here: [mtent12.zip](http://www.gutenberg.org/files/3200/old/mtent12.zip)),
 and assess the time needed to find all occurrences of different regex patterns.
-The R package `microbenchmark` [@microbenchmark] executes each call 100 times and we give the median time below.
+
+Technically, I use two Docker images provided by the rocker project [@rocker], 
+both based on Ubuntu 18.04. Docker containers are run with fixed cpus (2) and 
+memory (4G). The R package `microbenchmark` [@microbenchmark] 
+executes each call 100 times and I keep the median value. These values 
+cannot be reproduced exactly, although I found that they are quite stable 
+between different runs. To mitigate the hardware effect, I look at ratios.
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(knitr)
 library(kableExtra)
 ```
 
+# Results
 
 ```{r echo=FALSE, warning=FALSE}
 a <- readRDS("v3.6.3/results.rds")
 res_a <- data.frame(sapply(a, function(df) median(df$time / 1E6)))
-names(res_a) <- "R 3.6.3"
 
 b <- readRDS("v4.0.0/results.rds")
 res_b <- data.frame(sapply(b, function(df) median(df$time / 1E6)))
-names(res_b) <- "R 4.0.0"
 
 df <- apply(cbind(res_a, res_b), 2, signif, 4)
+df <- cbind(df, signif(df[, 2] / df[, 1], 2))
 
 kable(df, format = "html", row.names = TRUE, 
-      table.attr = "style='width:100%;'")
+      table.attr = "style='width:100%;'", 
+      col.names = c("R 3.6.3", "R 4.0.0", "ratio")) %>%
+  kable_styling() %>%
+  column_spec(4, bold = TRUE)
 
 ```
 
 
-<p style="text-align: center; margin-top: 10px;">Table 1: median execution time in milliseconds (ms), given with 4 significant digits.</p>
+<p style="text-align: justify; margin-top: 10px; font-size: 85%">Table 1: in the first two columns, median execution time in milliseconds (ms), given with 4 significant digits. The last column represents the ratio of the second column over the first one, given with two significant digits. Looking at the first row, one should understand that on R version 4.0.0, finding all occurrences of "Twain" in the text is about `r (1-df[1, 3])*100`% (1-`r df[1, 3]`) faster than on R version 3.6.3.</p>
+
+
+
+
+

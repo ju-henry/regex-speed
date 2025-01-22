@@ -11,7 +11,7 @@ patterns <- c(
   "[[:alpha:]]+ing",
   "^[^ ]*?Twain",
   "Tom|Sawyer|Huckleberry|Finn",
-  " (Tom|Sawyer|Huckleberry|Finn).{0,30}river|river.{0,30}(Tom|Sawyer|Huckleberry|Finn)"
+  "(Tom|Sawyer|Huckleberry|Finn).{0,30}river|river.{0,30}(Tom|Sawyer|Huckleberry|Finn)"
 )
 
 lres <- list()
@@ -20,7 +20,8 @@ for (p in patterns) {
   lres[[p]] <- microbenchmark(
     gregexpr(pattern = p, text = file_str, perl = T),
     times = 100, 
-    unit = "milliseconds"
+    unit = "milliseconds", 
+    control = list(warmup = 10)
   )
   
 }
