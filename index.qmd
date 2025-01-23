@@ -3,17 +3,18 @@ title: "Regex speed comparison in R"
 format: html
 editor: visual
 bibliography: references.bib
+css: styles.css
 ---
 
 # Setup
 
-From R version 4.0.0, PCRE2 is used when using regular expression functions with
-`perl = TRUE`. Here we compare regex search execution times between R
+From R version 4.0.0, PCRE2 [@pcre2] is used in regular expression base functions with
+`perl = TRUE`. Here I compare regex search execution times between R
 version 4.0.0 and the preceding version 3.6.3 (which still uses PCRE).
 
 I set up a similar experiment to the one of John Maddock [@boost].
 That is, I use a long English text (19MB) from the Gutenberg project (available here: [mtent12.zip](http://www.gutenberg.org/files/3200/old/mtent12.zip)),
-and assess the time needed to find all occurrences of different regex patterns.
+and assess the time needed to find all occurrences of different regular expressions.
 
 Technically, I use two Docker images provided by the rocker project [@rocker], 
 both based on Ubuntu 18.04. Docker containers are run with fixed cpus (2) and 
@@ -43,7 +44,7 @@ df <- cbind(df, signif(df[, 2] / df[, 1], 2))
 
 kable(df, format = "html", row.names = TRUE, 
       table.attr = "style='width:100%;'", 
-      col.names = c("R 3.6.3", "R 4.0.0", "ratio")) %>%
+      col.names = c("regex", "R 3.6.3", "R 4.0.0", "ratio")) %>%
   kable_styling() %>%
   column_spec(4, bold = TRUE)
 
@@ -52,7 +53,20 @@ kable(df, format = "html", row.names = TRUE,
 
 <p style="text-align: justify; margin-top: 10px; font-size: 85%">Table 1: in the first two columns, median execution time in milliseconds (ms), given with 4 significant digits. The last column represents the ratio of the second column over the first one, given with two significant digits. Looking at the first row, one should understand that on R version 4.0.0, finding all occurrences of "Twain" in the text is about `r (1-df[1, 3])*100`% (1-`r df[1, 3]`) faster than on R version 3.6.3.</p>
 
+# Conclusion
 
+With speed gains ranging from 50% to 95%, R version 4.0.0 does better than version 3.6.3 in 5 out of 6 cases.
 
+# Reproducibility
 
+To run the experiment yourself, clone the [repository](https://github.com/ju-henry/regex-speed), position your command line in the folder and run `run_comparison.sh`. On Linux, you would do:
+
+```{bash}
+#| eval: false
+#| echo: true
+
+git clone https://github.com/ju-henry/regex-speed.git
+cd regex-speed
+bash run_comparison.sh
+```
 
